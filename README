@@ -1,0 +1,162 @@
+This directory contains a collection of traces that represent applications
+in the wild. In particular, they represent behaviour that someone thought
+worthy of further study and analysis!
+
+To capture a trace:
+$ cairo-trace --profile application [args...]
+This will produce a application.$pid.lzma file.  If you think it is
+interesting add it to this repository, giving it a short but descriptive
+name, and add a note here explaining what the trace captures.
+
+To replay traces:
+Use cairo/perf/cairo-perf-trace. By default cairo-perf-trace will loop
+over all traces within cairo/perf/cairo-traces for all test targets. To run
+against a subset specify a series of traces on the command line and use the
+CAIRO_TEST_TARGET environment variable to filter the target. For example,
+CAIRO_TEST_TARGET=xlib ./cairo-perf-trace firefox.
+
+Guidelines
+----------
+Initial thoughts...
+
+1. Nothing obscene, or otherwise unsuitable for viewing by children or in the
+workplace - please be considerate to others. The trace should also respect
+copyright where appropriate. Even though the content is not usually visible
+during a replay, it is not acceptable to distribute such material via
+freedesktop.org.
+
+2. Each trace must be "representative of a significant use". The goal is a
+set of traces that capture the behaviour of real applications during active
+sessions. (We must guard against the tests becoming too artificial as that
+is better served by purpose-written micro-benchmarks.)
+
+3. For practical reasons (i.e. continuous performance testing), each trace
+should neither be profligate in the resources consumed nor the duration of
+the run. However, I'm loathe to exclude tests simply because they take too
+long or can not be run on tiny machines. (Instead, I plan to create subset
+of tests that have been truncated to run within 60s on a 2GHz Intel Core2.)
+
+4. If the application significantly improves such that the current trace
+is no longer representative of that application, it must be replaced. This
+is to ensure that we do not try to optimise for "historically broken
+behaviour".
+
+Traces (found in the full/ directory)
+-------------------------------------
+firefox-20090601    - browsing various news site, in particular the
+                      international BBC News website.
+firefox-36-20090609 - browsing news sites and blogs at font size 36
+                      Warning: this needs lots of RAM, working set > 512 MiB.
+firefox-36-20090611 - browsing http://www.bbc.co.uk/worldservice/languages/,
+                      single page at a time with font size 36
+                      Warning: this needs lots of RAM, working set > 512 MiB.
+firefox-woodtv      - A page with a gratiutiously large and obscured background,
+                      can cause misbehaving drivers to freeze!
+                      http://www.woodtv.com/
+firefox-world-map   - Rotating a vector map of the world:
+                      http://people.mozilla.com/~jmuizelaar/world-map.html
+firefox-periodic-table - Resizing a German periodic table of the elements
+                         http://upload.wikimedia.org/wikipedia/commons/6/63/Periodic_table_(german)_4.svg
+firefox-talos-gfx-20090702 - Firefox Talos performance suite, gfx tests (SYNTHETIC)
+                             https://wiki.mozilla.org/StandaloneTalos tgfx
+firefox-talos-svg-20090702 - Firefox Talos performance suite, svg tests (SYNTHETIC)
+                             https://wiki.mozilla.org/StandaloneTalos tsvg
+
+gnome-terminal-20090601 - exercising the various performance tests within vte
+gnome-terminal-20090728 - ls -lR /usr
+                          A real-world example of a many glyphs micro-benchmark!
+
+evolution-20090605 - perusing some old cairo@ mail
+
+swfdec-giant-steps-full - http://michalevy.com/wp-content/uploads/Giant%20Steps%202007.swf
+swfdec-youtube-full     - http://www.youtube.com/v/l6IAoPAjzpw&hl=en&fs=1&
+swfdec-fill-rate        - an example slideshow created from www.slide.com
+swfdec-fill-rate-2xaa   - ditto, but with 2x FSAA
+swfdec-fill-rate-4xaa   - ditto, but with 4x FSAA
+
+poppler-bug-12266    - A notorious document that is slow to render in poppler,
+                       and suffered a severe regression with the clipping
+                       rework.
+poppler-record       - Experimental traces to exercise the recording surface
+poppler-record-ordered
+poppler-record-drunkard
+
+epiphany-20090810        - Downloading a 2 GB file, mainly updating a progress
+                           bar and associated text.
+epiphany-webkit-20090810 - Running epiphany using the webkit backend over a
+                           couple of planets and the internal BBC news.
+                           It appears the cairo backend is not very mature...
+
+gnome-system-monitor-20090821 - A clean cairo version of gnome-system-monitor,
+                                graphing CPU/memory/network activity whilst
+                                reading the news with epiphany.
+
+
+Benchmarks
+----------
+The benchmarks are a set of trimmed traces that should run in a reasonable
+timeframe (I'm aiming for <10 seconds on a 2GHz Core2 with cairo-image, using
+./csi-trace --trim=10). The idea here is that this allows us to quickly
+determine a representative metric without running the whole suite -- and is
+useful for the casual user. The full traces are kept as they will exercise
+corner cases much more thoroughly and are not compromised by the conversion.
+
+To run the benchmark subset, use cairo-perf-trace benchmark.
+
+firefox-talos-gfx - The synthetic firefox benchmark (identical to
+                    firefox-talos-gfx-20090702) that exercise the core renderer.
+firefox-talos-svg - The synthetic firefox benchmark (identical to
+                    firefox-talos-svg-20090702) that exercise the SVG renderer.
+
+firefox-planet-gnome - Scrolling the full height of http://planet.gnome.org/
+
+firefox-fishtank     - A HTML5 canvas demo, courtesy of
+		       http://ie.microsoft.com/testdrive/Performance/FishIETank/Default.html
+                       This is a sprite based animation, and mostly tests the
+                       performance of unaligned, scaled alpha blits.
+firefox-fishbowl     - A HTML5 canvas demo, courtesy of
+		       http://ie.microsoft.com/testdrive/Performance/fishbowl/Default.html
+                       A slightly more complex fishtank.
+firefox-paintball    - A HTML5 canvas demo, courtesy of
+		       http://ie.microsoft.com/testdrive/Performance/Paintball/Default.html
+
+firefox-particles    - A HTML5 canvas demo, courtesy of
+		       http://ie.microsoft.com/testdrive/Performance/ParticleAccelration
+firefox-chalkboard   - Another HT|ML5 canvas demo written by Microsoft to
+                       demonstrate their own virtues by highlighting poor
+                       performance elsewhere.
+		       http://ie.microsoft.com/testdrive/Performance/Chalkboard
+firefox-canvas       - A pair of synthetic canvas benchmarks, found in the wild
+firefox-canvas-alpha   at http://flashcanvas.net/examples/dl.dropbox.com/u/1865210/mindcat/canvas_perf.html
+
+firefox-asteroids    - A HTML5 game benchmark,
+                       http://www.kevs3d.co.uk/dev/asteroidsbench/
+firefox-scrolling    - A bug report concerning an ancient performance regression
+                       http://home.arcor.de/bazonbloch/scrolltest/whyisscrollingonlinuxslowerthanonwindows.htm
+
+gvim                - Scrolling within a window showing a UTF-8 document
+gnome-terminal-vim  - The same test but using vim inside a gnome-terminal,
+                      but repeated more often to give a comparable time.
+
+evolution            - based on full/evolution-20090607
+gnome-system-monitor - based on full/gnome-system-monitor-20090821
+midori-zoomed        - scroll http://www.jakob-persson.com/styles_demo/?s=5
+                       whilst zoomed in.
+ocitysmap            - ocitysmap-render -f png -c Sanguinet
+popper               - based on full/poppler-20090811
+poppler-reseau       - A vector based map of a French city, which is
+                       abnormally slow in cairo:
+                       https://bugs.freedesktop.org/show_bug.cgi?id=38927
+swfdec-giant-steps   - based on full/swfdec-giant-steps
+swfdec-youtube       - based on full/swfdec-youtube
+xfce4-terminal-a1    - scrolling 'man gcc' using the terminus font
+
+grads-heat-map       - provided by Jennifer Adams, a typical output from
+                       GraDS, an open-source program for the analsyis and
+                       display of meteorlogical data. The trace is heavy in
+                       unantialiased fills and strokes.
+
+chromium-tabs        - provided by Jindrich Makovicka to exercise an issue
+                       he found will switching between tabs in Chromium, where
+                       the xlib backend on his machine was over 200x slower
+                       than the image backend.
