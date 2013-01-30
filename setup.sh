@@ -1,9 +1,8 @@
 #!/bin/sh
 
-export CAIRO_TEST_TARGET=image
 export CFLAGS="-O2 -g"
 export CC=gcc
-export CAIRO_VERSION=1.12.8
+export CAIRO_VERSION=2560c0b6577a6380ef175cf18bb804913784632c
 export MAKEOPTS=-j2
 
 # setup build environment
