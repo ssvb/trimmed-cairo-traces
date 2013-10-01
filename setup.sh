@@ -2,7 +2,7 @@
 
 export CFLAGS="-O2 -g"
 export CC=gcc
-export CAIRO_VERSION=1.12.12
+export CAIRO_VERSION=1.12.16
 export MAKEOPTS=-j2
 
 # setup build environment
