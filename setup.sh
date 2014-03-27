@@ -29,21 +29,14 @@ if [ ! -d "cairo" ]; then
     popd
 fi
 
-# first time configure for pixman and cairo
+# configure and build pixman and cairo
 
 if [ ! -f "pixman/configure" ]; then
+    echo "Configuring pixman..."
     pushd pixman
     ./autogen.sh --prefix=$PREFIX/pixman --disable-gtk || exit 1
     popd
 fi
-
-if [ ! -f "cairo/configure" ]; then
-    pushd cairo
-    ./autogen.sh --prefix=$PREFIX/cairo || exit 1
-    popd
-fi
-
-# first time compile and install for pixman and cairo
 
 if [ ! -d "tmp/pixman" ]; then
     echo "Compiling pixman..."
@@ -54,6 +47,13 @@ if [ ! -d "tmp/pixman" ]; then
     rm $PREFIX/pixman/lib/libpixman-1.so.0
     ln -s ../../../pixman/pixman/.libs/libpixman-1.so $PREFIX/pixman/lib/libpixman-1.so
     ln -s ../../../pixman/pixman/.libs/libpixman-1.so.0 $PREFIX/pixman/lib/libpixman-1.so.0
+    popd
+fi
+
+if [ ! -f "cairo/configure" ]; then
+    echo "Configuring cairo..."
+    pushd cairo
+    ./autogen.sh --prefix=$PREFIX/cairo || exit 1
     popd
 fi
 
