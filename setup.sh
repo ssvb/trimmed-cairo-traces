@@ -3,6 +3,8 @@
 export CFLAGS="-O2 -g"
 export CC=gcc
 export CAIRO_VERSION=1.12.16
+# NOTE: cairo-script stuff has problems with newer fontconfig:
+export FONTCONFIG_VERSION=2.8.0
 export MAKEOPTS=-j2
 
 # setup build environment
@@ -10,13 +12,20 @@ export MAKEOPTS=-j2
 export PREFIX=`pwd`/tmp
 export LD_LIBRARY_PATH=$PREFIX/pixman/lib:$PREFIX/cairo/lib
 export LD_RUN_PATH=$PREFIX/pixman/lib:$PREFIX/cairo/lib
-export PKG_CONFIG_PATH=$PREFIX/pixman/lib/pkgconfig:$PREFIX/cairo/lib/pkgconfig
+export PKG_CONFIG_PATH=$PREFIX/pixman/lib/pkgconfig:$PREFIX/cairo/lib/pkgconfig:$PREFIX/fontconfig/lib/pkgconfig
 
 if [ ! -d "$PREFIX" ]; then
     mkdir $PREFIX
 fi
 
 # clone repositories
+
+if [ ! -d "fontconfig" ]; then
+    git clone git://anongit.freedesktop.org/fontconfig
+    pushd fontconfig
+    git checkout $FONTCONFIG_VERSION
+    popd
+fi
 
 if [ ! -d "pixman" ]; then
     git clone git://anongit.freedesktop.org/pixman
@@ -29,7 +38,21 @@ if [ ! -d "cairo" ]; then
     popd
 fi
 
-# configure and build pixman and cairo
+# configure and build fontconfig, pixman and cairo
+
+if [ ! -f "fontconfig/configure" ]; then
+    echo "Configuring fontconfig..."
+    pushd fontconfig
+    ./autogen.sh --prefix=$PREFIX/fontconfig || exit 1
+    popd
+fi
+
+if [ ! -d "tmp/fontconfig" ]; then
+    echo "Compiling fontconfig..."
+    pushd fontconfig
+    make $MAKEOPTS install || exit 1
+    popd
+fi
 
 if [ ! -f "pixman/configure" ]; then
     echo "Configuring pixman..."
